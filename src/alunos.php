@@ -4,18 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FitPlus Academia - Alunos</title>
-  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
 
   <header class="site-header">
     <div class="container">
-      <a class="logo" href="index.html">Fit Plus</a>
+      <a class="logo" href="index.php">Fit <span>Plus</span></a>
       <nav>
         <ul class="menu">
-          <li><a href="index.html">Início</a></li>
-          <li><a class="ativo" href="alunos.html">Alunos</a></li>
-          <li><a href="cadastro.html">Novo aluno</a></li>
+          <li><a href="index.php">Início</a></li>
+          <li><a class="ativo" href="alunos.php">Alunos</a></li>
+          <li><a href="cadastro.php">Novo aluno</a></li>
         </ul>
       </nav>
     </div>
@@ -27,7 +27,7 @@
         <h1>Alunos</h1>
         <p class="subtitulo">Lista de todos os alunos cadastrados.</p>
       </div>
-      <a class="btn" href="cadastro.html">+ Novo aluno</a>
+      <a class="btn" href="cadastro.php">+ Novo aluno</a>
     </div>
  
     <div class="tabela-wrapper">
