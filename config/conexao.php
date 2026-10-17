@@ -5,7 +5,7 @@
 function conectar()
 {
     $host    = 'localhost';
-    $banco   = 'academia';
+    $banco   = 'academia_fit_plus';
     $usuario = 'root';
     $senha   = '';
 
