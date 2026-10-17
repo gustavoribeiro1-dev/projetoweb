@@ -23,19 +23,6 @@ SET time_zone = "+00:00";
 
 -- --------------------------------------------------------
 
---
--- Estrutura para tabela `alunos`
---
-
-CREATE TABLE `alunos` (
-  `id` int(11) NOT NULL,
-  `nome` varchar(50) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `telefone` varchar(20) NOT NULL,
-  `dt_nascimento` date NOT NULL,
-  `id_plano` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 -- --------------------------------------------------------
 
 --
@@ -43,10 +30,11 @@ CREATE TABLE `alunos` (
 --
 
 CREATE TABLE `planos` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `titulo` varchar(50) NOT NULL,
   `valor` double NOT NULL,
-  `descricao` text NOT NULL
+  `descricao` text NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -55,40 +43,26 @@ CREATE TABLE `planos` (
 
 INSERT INTO `planos` (`id`, `titulo`, `valor`, `descricao`) VALUES
 (1, 'plano standart', 150, 'Plano mensal padrao'),
-(2, 'Plano fit', 130, 'Plano padrão com recorrência direta em cartão.'),
+(2, 'Plano fit', 130, 'Plano padrão com recorrência direta em cartão.');
 
-
---
--- Índices para tabelas despejadas
---
+-- --------------------------------------------------------
 
 --
--- Índices de tabela `alunos`
---
-ALTER TABLE `alunos`
-  ADD PRIMARY KEY (`id`);
-
---
--- Índices de tabela `planos`
---
-ALTER TABLE `planos`
-  ADD PRIMARY KEY (`id`);
-
---
--- AUTO_INCREMENT para tabelas despejadas
+-- Estrutura para tabela `alunos`
 --
 
---
--- AUTO_INCREMENT de tabela `alunos`
---
-ALTER TABLE `alunos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+CREATE TABLE `alunos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nome` varchar(50) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `telefone` varchar(20) NOT NULL,
+  `dt_nascimento` date NOT NULL,
+  `id_plano` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_alunos_id_plano` (`id_plano`),
+  CONSTRAINT `fk_alunos_plano` FOREIGN KEY (`id_plano`) REFERENCES `planos` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- AUTO_INCREMENT de tabela `planos`
---
-ALTER TABLE `planos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
