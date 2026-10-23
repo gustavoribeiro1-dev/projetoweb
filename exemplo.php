@@ -44,14 +44,14 @@ if (isset($_GET['id'])) {
   <?php if ($aluno) { ?>
     <h2>Aluno encontrado</h2>
     <p>ID: <?php echo $aluno['id']; ?></p>
-    <p>Nome: <?php echo htmlspecialchars($aluno['nome']); ?></p>
-    <p>E-mail: <?php echo htmlspecialchars($aluno['email']); ?></p>
-    <p>Plano: <?php echo htmlspecialchars($aluno['plano']); ?></p>
+    <p>Nome: <?php echo ($aluno['nome']); ?></p>
+    <p>E-mail: <?php echo ($aluno['email']); ?></p>
+    <p>Plano: <?php echo ($aluno['plano']); ?></p>
   <?php } ?>
 
   <h2>Alunos cadastrados</h2>
   <?php foreach ($alunos as $item) { ?>
-    <p><?php echo $item['id']; ?> - <?php echo htmlspecialchars($item['nome']); ?> (<?php echo htmlspecialchars($item['plano']); ?>)</p>
+    <p><?php echo $item['id']; ?> - <?php echo ($item['nome']); ?> (<?php echo ($item['plano']); ?>)</p>
   <?php } ?>
 </body>
 </html>
