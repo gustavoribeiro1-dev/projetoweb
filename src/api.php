@@ -21,6 +21,17 @@ $d = json_decode(file_get_contents('php://input'), true);
 
 switch ($metodo) {
     case 'GET':
+        if ($id === null) {
+            echo json_encode($dao->listar());
+        } else {
+            $c = $dao->buscarPorId($id);
+            if (!$c) {
+                http_response_code(404);
+                echo json_encode(['erro' => 'Aluno não encontrado']);
+            } else {
+                echo json_encode($c);
+            }
+        }
         break;
 
     case 'POST':
