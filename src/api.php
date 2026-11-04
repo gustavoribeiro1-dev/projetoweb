@@ -35,6 +35,15 @@ switch ($metodo) {
         break;
 
     case 'POST':
+        if (empty($d['nome']) || empty($d['email']) || empty($d['telefone']) || empty($d['dt_nascimento']) || empty($d['id_plano'])) {
+            http_response_code(400);
+            echo json_encode(['erro' => 'Preencha todos os campos obrigatórios']);
+            exit;
+        }
+
+        $novoId = $dao->inserir($d['nome'], $d['email'], $d['telefone'], $d['dt_nascimento'], $d['id_plano']);
+        http_response_code(201);
+        echo json_encode(['id' => $novoId]);
         break;
 
     case 'PUT':
