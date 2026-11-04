@@ -47,9 +47,31 @@ switch ($metodo) {
         break;
 
     case 'PUT':
+        if (!$id || !$dao->buscarPorId($id)) {
+            http_response_code(404);
+            echo json_encode(['erro' => 'Aluno não encontrado']);
+            exit;
+        }
+
+        if (empty($d['nome']) || empty($d['email']) || empty($d['telefone']) || empty($d['dt_nascimento']) || empty($d['id_plano'])) {
+            http_response_code(400);
+            echo json_encode(['erro' => 'Preencha todos os campos obrigatórios']);
+            exit;
+        }
+
+        $dao->atualizar($id, $d['nome'], $d['email'], $d['telefone'], $d['dt_nascimento'], $d['id_plano']);
+        echo json_encode(['ok' => true]);
         break;
 
     case 'DELETE':
+        if (!$id || !$dao->buscarPorId($id)) {
+            http_response_code(404);
+            echo json_encode(['erro' => 'Aluno não encontrado']);
+            exit;
+        }
+
+        $dao->excluir($id);
+        echo json_encode(['ok' => true]);
         break;
 
     default:
