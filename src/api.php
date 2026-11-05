@@ -24,24 +24,24 @@ switch ($metodo) {
         if ($id === null) {
             echo json_encode($dao->listar());
         } else {
-            $c = $dao->buscarPorId($id);
-            if (!$c) {
+            $aluno = $dao->buscarPorId($id);
+            if (!$aluno) {
                 http_response_code(404);
                 echo json_encode(['erro' => 'Aluno não encontrado']);
             } else {
-                echo json_encode($c);
+                echo json_encode($aluno);
             }
         }
         break;
 
     case 'POST':
-        if (empty($d['nome']) || empty($d['email']) || empty($d['telefone']) || empty($d['dt_nascimento']) || empty($d['id_plano'])) {
+        if (empty($aluno['nome']) || empty($aluno['email']) || empty($aluno['telefone']) || empty($aluno['dt_nascimento']) || empty($aluno['id_plano'])) {
             http_response_code(400);
             echo json_encode(['erro' => 'Preencha todos os campos obrigatórios']);
             exit;
         }
 
-        $novoId = $dao->inserir($d['nome'], $d['email'], $d['telefone'], $d['dt_nascimento'], $d['id_plano']);
+        $novoId = $dao->inserir($aluno['nome'], $aluno['email'], $aluno['telefone'], $aluno['dt_nascimento'], $aluno['id_plano']);
         http_response_code(201);
         echo json_encode(['id' => $novoId]);
         break;
@@ -53,13 +53,13 @@ switch ($metodo) {
             exit;
         }
 
-        if (empty($d['nome']) || empty($d['email']) || empty($d['telefone']) || empty($d['dt_nascimento']) || empty($d['id_plano'])) {
+        if (empty($aluno['nome']) || empty($aluno['email']) || empty($aluno['telefone']) || empty($aluno['dt_nascimento']) || empty($aluno['id_plano'])) {
             http_response_code(400);
             echo json_encode(['erro' => 'Preencha todos os campos obrigatórios']);
             exit;
         }
 
-        $dao->atualizar($id, $d['nome'], $d['email'], $d['telefone'], $d['dt_nascimento'], $d['id_plano']);
+        $dao->atualizar($id, $aluno['nome'], $aluno['email'], $aluno['telefone'], $aluno['dt_nascimento'], $aluno['id_plano']);
         echo json_encode(['ok' => true]);
         break;
 
