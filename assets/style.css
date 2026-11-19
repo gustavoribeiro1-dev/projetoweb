@@ -275,6 +275,59 @@ select:focus {
   margin-top: 0.5rem;
 }
 
+/* Garante que elementos com o atributo hidden fiquem escondidos,
+   mesmo os que têm display definido (ex.: .formulario usa display: grid) */
+[hidden] {
+  display: none !important;
+}
+
+.mensagem {
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.mensagem-sucesso {
+  background: #e6f4ea;
+  color: #1e6b34;
+  border-left: 4px solid #2f9e44;
+}
+
+.mensagem-erro {
+  background: #fdecec;
+  color: #9b1c1c;
+  border-left: 4px solid #dc2626;
+}
+
+.busca {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.busca input {
+  width: 8rem;
+}
+
+.resultado-busca {
+  margin-bottom: 1.5rem;
+  max-width: 520px;
+}
+
+.resultado-busca dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.3rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.resultado-busca dt {
+  font-weight: 600;
+}
+
 .site-footer {
   background: #14171f;
   color: #aeb3bf;
