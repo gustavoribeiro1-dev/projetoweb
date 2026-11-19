@@ -4,10 +4,10 @@
 
 function conectar()
 {
-    $host    = 'localhost';
-    $banco   = 'academia_fit_plus';
+    $host    = 'u181341323_db_1Fp1DZQC';
+    $banco   = 'u181341323_usr_1Fp1DZQC';
     $usuario = 'root';
-    $senha   = '';
+    $senha   = 'l0=Q/pV!4:X';
 
     try {
         $pdo = new PDO("mysql:host=$host;dbname=$banco;charset=utf8mb4", $usuario, $senha);
