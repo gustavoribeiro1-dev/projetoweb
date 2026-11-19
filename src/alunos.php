@@ -1,36 +1,3 @@
-<?php
-require_once __DIR__ . '/../DAO/alunoDAO.php';
-
-$dao = new AlunoDAO();
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id = isset($_POST['id']) && is_string($_POST['id'])
-        ? filter_var($_POST['id'], FILTER_VALIDATE_INT)
-        : false;
-
-    if ($id === false || $id < 1) {
-        http_response_code(400);
-        $status = 'erro';
-    } else {
-        $dao->excluir($id);
-        header('Location: alunos.php?status=excluido');
-        exit;
-    }
-} else {
-    $status = isset($_GET['status']) && is_string($_GET['status']) ? $_GET['status'] : '';
-}
-
-$mensagens = [
-    'cadastrado' => 'Aluno cadastrado com sucesso.',
-    'atualizado' => 'Dados do aluno atualizados com sucesso.',
-    'excluido' => 'Aluno excluído com sucesso.',
-    'erro' => 'Não foi possível excluir: informe um aluno válido.',
-];
-$alunos = $dao->listar();
-$escape = static function ($value) {
-    return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
-};
-?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -63,9 +30,27 @@ $escape = static function ($value) {
       <a class="btn" href="cadastro.php">+ Novo aluno</a>
     </div>
 
-    <?php if (isset($mensagens[$status])): ?>
-      <p role="status"><?= $escape($mensagens[$status]) ?></p>
-    <?php endif; ?>
+    <p id="mensagem" role="status" hidden></p>
+
+    <form id="form-busca" class="busca">
+      <label for="busca-id">Buscar aluno por ID</label>
+      <input type="number" id="busca-id" name="id" min="1" required>
+      <button type="submit" class="btn">Buscar</button>
+      <button type="button" id="limpar-busca" class="btn btn-secundario" hidden>Limpar</button>
+    </form>
+
+    <article id="resultado-busca" class="card resultado-busca" hidden>
+      <h2>Aluno encontrado</h2>
+      <dl>
+        <dt>ID</dt>                 <dd data-campo="id"></dd>
+        <dt>Nome</dt>               <dd data-campo="nome"></dd>
+        <dt>E-mail</dt>             <dd data-campo="email"></dd>
+        <dt>Telefone</dt>           <dd data-campo="telefone"></dd>
+        <dt>Data de nascimento</dt> <dd data-campo="dt_nascimento"></dd>
+        <dt>Plano</dt>              <dd data-campo="plano"></dd>
+      </dl>
+      <a id="resultado-editar" class="btn btn-pequeno" href="#">Editar</a>
+    </article>
 
     <div class="tabela-wrapper">
       <table>
@@ -79,29 +64,10 @@ $escape = static function ($value) {
             <th>Ações</th>
           </tr>
         </thead>
-        <tbody>
-          <?php if ($alunos === []): ?>
-            <tr>
-              <td colspan="6">Ainda não há alunos cadastrados.</td>
-            </tr>
-          <?php else: ?>
-            <?php foreach ($alunos as $aluno): ?>
-              <tr>
-                <td><?= $escape($aluno['id']) ?></td>
-                <td><?= $escape($aluno['nome']) ?></td>
-                <td><?= $escape($aluno['email']) ?></td>
-                <td><?= $escape($aluno['telefone']) ?></td>
-                <td><?= $escape($aluno['plano']) ?> - R$ <?= number_format((float) $aluno['valor_plano'], 2, ',', '.') ?></td>
-                <td class="acoes">
-                  <a class="btn btn-pequeno" href="editar.php?id=<?= $escape($aluno['id']) ?>">Editar</a>
-                  <form method="post" action="alunos.php" onsubmit="return confirm('Deseja realmente excluir este aluno?');">
-                    <input type="hidden" name="id" value="<?= $escape($aluno['id']) ?>">
-                    <button type="submit" class="btn btn-pequeno btn-perigo">Excluir</button>
-                  </form>
-                </td>
-              </tr>
-            <?php endforeach; ?>
-          <?php endif; ?>
+        <tbody id="lista-alunos">
+          <tr>
+            <td colspan="6">Carregando alunos...</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -110,6 +76,161 @@ $escape = static function ($value) {
   <footer class="site-footer">
     <p>&copy; 2026 FitPlus Academia &middot; Projeto do Semestre &middot; Desenvolvimento de Aplicações para Internet &middot; Univates</p>
   </footer>
+
+  <script src="../assets/api.js"></script>
+  <script>
+    const mensagem = document.getElementById('mensagem');
+    const lista = document.getElementById('lista-alunos');
+    const formBusca = document.getElementById('form-busca');
+    const campoBusca = document.getElementById('busca-id');
+    const botaoLimpar = document.getElementById('limpar-busca');
+    const resultado = document.getElementById('resultado-busca');
+
+    // Mensagens que chegam pela URL depois de cadastrar ou editar (ex.: alunos.php?status=cadastrado)
+    const mensagensStatus = {
+      cadastrado: 'Aluno cadastrado com sucesso.',
+      atualizado: 'Dados do aluno atualizados com sucesso.'
+    };
+    const status = new URLSearchParams(location.search).get('status');
+    if (mensagensStatus[status]) {
+      mostrarMensagem(mensagem, mensagensStatus[status], 'sucesso');
+    }
+
+    // Cria uma célula <td> com o texto informado
+    function criarCelula(texto) {
+      const celula = document.createElement('td');
+      celula.textContent = texto;
+      return celula;
+    }
+
+    // Mostra uma única linha na tabela (usado para "carregando", "vazio" e erros)
+    function mostrarLinhaUnica(texto) {
+      const linha = document.createElement('tr');
+      const celula = criarCelula(texto);
+      celula.colSpan = 6;
+      linha.append(celula);
+      lista.replaceChildren(linha);
+    }
+
+    // GET api.php -> lista todos os alunos
+    async function carregarAlunos() {
+      try {
+        const { status, dados } = await chamarApi('GET');
+
+        if (status !== 200) {
+          mostrarLinhaUnica('Erro ao carregar os alunos: ' + dados.erro);
+          return;
+        }
+
+        if (dados.length === 0) {
+          mostrarLinhaUnica('Ainda não há alunos cadastrados.');
+          return;
+        }
+
+        lista.replaceChildren();
+
+        for (const aluno of dados) {
+          const linha = document.createElement('tr');
+
+          linha.append(
+            criarCelula(aluno.id),
+            criarCelula(aluno.nome),
+            criarCelula(aluno.email),
+            criarCelula(aluno.telefone),
+            criarCelula(aluno.plano + ' - ' + formatarMoeda(aluno.valor_plano))
+          );
+
+          const acoes = document.createElement('td');
+          acoes.className = 'acoes';
+
+          const editar = document.createElement('a');
+          editar.className = 'btn btn-pequeno';
+          editar.href = 'editar.php?id=' + aluno.id;
+          editar.textContent = 'Editar';
+
+          const excluir = document.createElement('button');
+          excluir.type = 'button';
+          excluir.className = 'btn btn-pequeno btn-perigo';
+          excluir.textContent = 'Excluir';
+          excluir.addEventListener('click', () => excluirAluno(aluno.id));
+
+          acoes.append(editar, excluir);
+          linha.append(acoes);
+          lista.append(linha);
+        }
+      } catch (erro) {
+        mostrarLinhaUnica('Não foi possível conectar à API.');
+      }
+    }
+
+    // DELETE api.php?id=X -> exclui o aluno
+    async function excluirAluno(id) {
+      if (!confirm('Deseja realmente excluir este aluno?')) {
+        return;
+      }
+
+      try {
+        const { status, dados } = await chamarApi('DELETE', '?id=' + id);
+
+        if (status === 200) {
+          mostrarMensagem(mensagem, 'Aluno excluído com sucesso.', 'sucesso');
+          limparBusca();
+          carregarAlunos();
+        } else {
+          mostrarMensagem(mensagem, 'Não foi possível excluir: ' + dados.erro, 'erro');
+        }
+      } catch (erro) {
+        mostrarMensagem(mensagem, 'Não foi possível conectar à API.', 'erro');
+      }
+    }
+
+    // GET api.php?id=X -> busca um aluno pelo ID
+    formBusca.addEventListener('submit', async (evento) => {
+      evento.preventDefault();
+      esconderMensagem(mensagem);
+      resultado.hidden = true;
+      botaoLimpar.hidden = false;
+
+      try {
+        const { status, dados } = await chamarApi('GET', '?id=' + encodeURIComponent(campoBusca.value));
+
+        if (status !== 200) {
+          mostrarMensagem(mensagem, dados.erro, 'erro');
+          return;
+        }
+
+        const valores = {
+          id: dados.id,
+          nome: dados.nome,
+          email: dados.email,
+          telefone: dados.telefone,
+          dt_nascimento: formatarData(dados.dt_nascimento),
+          plano: dados.plano + ' - ' + formatarMoeda(dados.valor_plano)
+        };
+
+        for (const campo in valores) {
+          resultado.querySelector('[data-campo="' + campo + '"]').textContent = valores[campo];
+        }
+        document.getElementById('resultado-editar').href = 'editar.php?id=' + dados.id;
+        resultado.hidden = false;
+      } catch (erro) {
+        mostrarMensagem(mensagem, 'Não foi possível conectar à API.', 'erro');
+      }
+    });
+
+    function limparBusca() {
+      formBusca.reset();
+      resultado.hidden = true;
+      botaoLimpar.hidden = true;
+    }
+
+    botaoLimpar.addEventListener('click', () => {
+      limparBusca();
+      esconderMensagem(mensagem);
+    });
+
+    carregarAlunos();
+  </script>
 
 </body>
 </html>
