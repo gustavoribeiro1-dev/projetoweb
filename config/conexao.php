@@ -4,10 +4,10 @@
 
 function conectar()
 {
-    $host    = 'u181341323_db_1Fp1DZQC';
-    $banco   = 'u181341323_usr_1Fp1DZQC';
-    $usuario = 'root';
-    $senha   = 'l0=Q/pV!4:X';
+    $host    = 'srv812.hstgr.io';
+    $banco   = 'u181341323_academia';
+    $usuario = 'u181341323_gustavo';
+    $senha   = 'Mb6&nrhQ6po';
 
     try {
         $pdo = new PDO("mysql:host=$host;dbname=$banco;charset=utf8mb4", $usuario, $senha);
