@@ -1,15 +1,7 @@
-// Funções usadas pelas páginas do site para conversar com a API REST (src/api.php).
-//
-// Atenção: como o token fica no JavaScript, qualquer pessoa que abrir o código
-// da página consegue vê-lo. Para o projeto da disciplina isso é suficiente, mas
-// num sistema real a autenticação seria feita com login (sessão ou token por usuário).
 const API_URL = 'api.php';
 const API_TOKEN = 'meu-token-secreto-123';
 
-// Faz uma requisição para a API e devolve { status, dados }
-//   metodo:   'GET', 'POST', 'PUT' ou 'DELETE'
-//   consulta: parâmetros da URL, ex.: '?id=3' ou '?planos'
-//   corpo:    objeto enviado como JSON (usado no POST e no PUT)
+// Faz uma requisição para a API e devolve o status e os dados
 async function chamarApi(metodo, consulta = '', corpo = null) {
   const opcoes = {
     method: metodo,
@@ -27,24 +19,42 @@ async function chamarApi(metodo, consulta = '', corpo = null) {
   return { status: resposta.status, dados: dados };
 }
 
-// Mostra uma mensagem na tela. tipo: 'sucesso' ou 'erro'
+// Mostra uma mensagem de sucesso ou de erro na tela
 function mostrarMensagem(elemento, texto, tipo) {
   elemento.textContent = texto;
   elemento.className = 'mensagem mensagem-' + tipo;
   elemento.hidden = false;
 }
 
+// Esconde a mensagem da tela
 function esconderMensagem(elemento) {
   elemento.hidden = true;
 }
 
-// 150 -> "R$ 150,00"
+// Formata um valor em reais
 function formatarMoeda(valor) {
   return Number(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
-// "1998-04-12" -> "12/04/1998"
+// Converte a data de AAAA-MM-DD para DD/MM/AAAA
 function formatarData(data) {
   const [ano, mes, dia] = data.split('-');
   return dia + '/' + mes + '/' + ano;
+}
+
+// Transforma os campos do formulário em um objeto
+function lerFormulario(formulario) {
+  return Object.fromEntries(new FormData(formulario));
+}
+
+// Busca os planos na API e preenche o select
+async function carregarPlanos(select) {
+  const { dados: planos } = await chamarApi('GET', '?planos');
+
+  select.innerHTML = '';
+  select.add(new Option('Selecione um plano', ''));
+
+  for (const plano of planos) {
+    select.add(new Option(plano.titulo + ' - ' + formatarMoeda(plano.valor), plano.id));
+  }
 }
