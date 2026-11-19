@@ -73,22 +73,6 @@ $metodo = $_SERVER['REQUEST_METHOD'];
 
 // O id vem pela URL (api.php?id=3) e precisa ser um número inteiro maior que zero
 $id = $_GET['id'] ?? null;
-<<<<<<< HEAD
-$aluno = json_decode(file_get_contents('php://input'), true);
-
-switch ($metodo) {
-    case 'GET':
-        if ($id === null) {
-            echo json_encode($dao->listar());
-        } else {
-            $aluno = $dao->buscarPorId($id);
-            if (!$aluno) {
-                http_response_code(204);
-                echo json_encode(['erro' => 'Aluno não encontrado']);
-            } else {
-                echo json_encode($aluno);
-            }
-=======
 if ($id !== null) {
     $id = filter_var($id, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
     if ($id === false) {
@@ -107,7 +91,6 @@ switch ($metodo) {
         // api.php?planos -> lista os planos (usado no formulário de cadastro/edição)
         if (isset($_GET['planos'])) {
             responder(200, $dao->listarPlanos());
->>>>>>> 015e67506370d352fa515f8696101d1a9a4c1102
         }
 
         if ($id === null) {
@@ -133,18 +116,11 @@ switch ($metodo) {
         break;
 
     case 'PUT':
-<<<<<<< HEAD
-        if (!$id || !$dao->buscarPorId($id)) {
-            http_response_code(204);
-            echo json_encode(['erro' => 'Aluno não encontrado']);
-            exit;
-=======
         if ($id === null) {
             responder(400, ['erro' => 'Informe o ID do aluno']);
         }
         if (!$dao->buscarPorId($id)) {
             responder(404, ['erro' => 'Aluno não encontrado']);
->>>>>>> 015e67506370d352fa515f8696101d1a9a4c1102
         }
 
         $aluno = lerAluno($corpo);
@@ -158,27 +134,17 @@ switch ($metodo) {
         break;
 
     case 'DELETE':
-<<<<<<< HEAD
-        if (!$id || !$dao->buscarPorId($id)) {
-            http_response_code(204);
-            echo json_encode(['erro' => 'Aluno não encontrado']);
-            exit;
-=======
         if ($id === null) {
             responder(400, ['erro' => 'Informe o ID do aluno']);
         }
         if (!$dao->buscarPorId($id)) {
             responder(404, ['erro' => 'Aluno não encontrado']);
->>>>>>> 015e67506370d352fa515f8696101d1a9a4c1102
         }
 
         $dao->excluir($id);
         responder(200, ['ok' => true]);
         break;
-<<<<<<< HEAD
-=======
 
     default:
         responder(405, ['erro' => 'Método não permitido']);
->>>>>>> 015e67506370d352fa515f8696101d1a9a4c1102
 }
