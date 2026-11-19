@@ -17,7 +17,7 @@ if ($autorizacao !== "Bearer $token") {
 
 $metodo = $_SERVER['REQUEST_METHOD'];
 $id = $_GET['id'] ?? null;
-$d = json_decode(file_get_contents('php://input'), true);
+$aluno = json_decode(file_get_contents('php://input'), true);
 
 switch ($metodo) {
     case 'GET':
@@ -26,7 +26,7 @@ switch ($metodo) {
         } else {
             $aluno = $dao->buscarPorId($id);
             if (!$aluno) {
-                http_response_code(404);
+                http_response_code(204);
                 echo json_encode(['erro' => 'Aluno não encontrado']);
             } else {
                 echo json_encode($aluno);
@@ -48,7 +48,7 @@ switch ($metodo) {
 
     case 'PUT':
         if (!$id || !$dao->buscarPorId($id)) {
-            http_response_code(404);
+            http_response_code(204);
             echo json_encode(['erro' => 'Aluno não encontrado']);
             exit;
         }
@@ -65,7 +65,7 @@ switch ($metodo) {
 
     case 'DELETE':
         if (!$id || !$dao->buscarPorId($id)) {
-            http_response_code(404);
+            http_response_code(204);
             echo json_encode(['erro' => 'Aluno não encontrado']);
             exit;
         }
@@ -73,8 +73,4 @@ switch ($metodo) {
         $dao->excluir($id);
         echo json_encode(['ok' => true]);
         break;
-
-    default:
-        http_response_code(405);
-        echo json_encode(['erro' => 'Método não permitido']);
 }
